@@ -2517,8 +2517,11 @@ provider turn ended. When the restored runner proves that turn ended with the
 result Paperclip accepted, it records a reconciliation and the run terminal,
 which settle that turn. When provider history no longer contains the checkpointed
 turn, or the runner reports it lost on restore, but Paperclip durably holds the
-result that exact turn proposed, recovery also settles the turn with that result. Either way, recovery finalizes the
-accepted result instead of failing and rerunning finished work. A missing turn
+result that exact turn proposed, recovery also settles the turn with that result.
+This rule applies to Codex, OpenCode, and ACPX, both when the recovery read reports
+the lost turn and when the restored conversation reports it live. Either way,
+recovery finalizes the accepted result instead of failing and rerunning finished
+work. A missing turn
 without such a result still fails closed, because its outcome is unknown.
 
 Provider execution and control-plane finalization have different clocks. A healthy provider can think or execute a long tool without output. Once execution settles, recovery and finalization control steps have a 60-second deadline, checked on startup and every 15 seconds. With a healthy database and scheduler, an abandoned transition must be repaired or surfaced within 90 seconds. Terminal persistence must not wait on provider cleanup or publication; a late finalizer cannot change a reassigned or closed task or release another run's locks. In particular, a done report from a run whose task now belongs to another agent, a user or nobody is kept as an accepted result but records `completion_owner_superseded` and preserves the task status for the current owner. Historical ambiguous runs are never automatically replayed after an upgrade.
